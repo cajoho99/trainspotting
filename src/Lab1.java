@@ -235,10 +235,11 @@ public class Lab1 {
                                 if (purple.availablePermits() != 0) {
                                     purple.acquire();
                                     tsi.setSwitch(3, 11, TSimInterface.SWITCH_RIGHT);
-                                } else {
+                                } else if(blue.availablePermits() != 0) {
                                     blue.acquire();
                                     tsi.setSwitch(3, 11, TSimInterface.SWITCH_LEFT);
-
+                                }else {
+                                  tsi.setSpeed(id, 0);
                                 }
                                 tsi.setSpeed(id, speed);
                             }
