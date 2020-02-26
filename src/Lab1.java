@@ -1,7 +1,12 @@
 import TSim.*;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+
+import static java.lang.Thread.sleep;
 
 public class Lab1 {
 
@@ -30,7 +35,10 @@ public class Lab1 {
         Semaphore orange = new Semaphore(1);
         Semaphore pink = new Semaphore(0);
         Semaphore teal = new Semaphore(1);
-        
+
+
+        //tsi.setSwitch(4, 9, TSimInterface.SWITCH_LEFT);
+
 
         class Train implements Runnable {
 
@@ -65,17 +73,18 @@ public class Lab1 {
                         }
 
                         // Black east
-                        if (se.getXpos() == 15 && se.getYpos() == 7 && se.getStatus() == SensorEvent.ACTIVE) {
+                        if (se.getXpos() == 14 && se.getYpos() == 7 && se.getStatus() == SensorEvent.ACTIVE) {
                             // to South
                             if (!direction) {
                                 tsi.setSpeed(id, 0);
                                 green.acquire();
                                 black.release();
+                                System.out.println("Black released! - " + black.availablePermits());
                                 tsi.setSwitch(17, 7, TSimInterface.SWITCH_RIGHT);
                                 tsi.setSpeed(id, speed);
                                 // to North
-                            } else {
-                                green.release();
+                            }else{
+                               green.release();
                             }
                         }
 
@@ -88,7 +97,7 @@ public class Lab1 {
                                 tsi.setSpeed(id, speed);
                                 // to North
                             } else {
-                                fourWay.release();
+                               fourWay.release();
                             }
                         }
 
@@ -96,7 +105,7 @@ public class Lab1 {
                         if (se.getXpos() == 9 && se.getYpos() == 8 && se.getStatus() == SensorEvent.ACTIVE) {
                             // to South
                             if (!direction) {
-                                fourWay.release();
+                               fourWay.release();
                                 // to North
                             } else {
                                 tsi.setSpeed(id, 0);
@@ -125,6 +134,9 @@ public class Lab1 {
                                 tsi.setSpeed(id, 0);
                                 green.acquire();
                                 red.release();
+                                System.out.println("Red released! - " + red.availablePermits());
+
+
                                 tsi.setSwitch(17, 7, TSimInterface.SWITCH_LEFT);
                                 tsi.setSpeed(id, speed);
                                 // to North
@@ -139,12 +151,19 @@ public class Lab1 {
                         if (se.getXpos() == 19 && se.getYpos() == 8 && se.getStatus() == SensorEvent.ACTIVE && direction) {
                             // to South
                             tsi.setSpeed(id, 0);
-                            if (red.tryAcquire(1, TimeUnit.SECONDS)) {
-                                tsi.setSwitch(17, 7, TSimInterface.SWITCH_RIGHT);
+
+
+                            if (red.tryAcquire()) {
+                                System.out.println("Red acquired! - " + red.availablePermits());
+
+                                tsi.setSwitch(17, 7, TSimInterface.SWITCH_LEFT);
 
                             } else {
                                 black.acquire();
-                                tsi.setSwitch(17, 7, TSimInterface.SWITCH_LEFT);
+                                System.out.println("Black acquired! - " + black.availablePermits());
+
+
+                                tsi.setSwitch(17, 7, TSimInterface.SWITCH_RIGHT);
                             }
                             tsi.setSpeed(id, speed);
 
@@ -155,7 +174,7 @@ public class Lab1 {
                             // to South
                             if (!direction) {
                                 tsi.setSpeed(id, 0);
-                                if (purple.tryAcquire(1, TimeUnit.SECONDS)) {
+                                if (purple.tryAcquire()) {
                                     tsi.setSwitch(15, 9, TSimInterface.SWITCH_RIGHT);
                                 } else {
                                     blue.acquire();
@@ -204,11 +223,13 @@ public class Lab1 {
                             if (!direction) {
                                 tsi.setSpeed(id, 0);
                                 orange.acquire();
+
                                 tsi.setSwitch(4, 9, TSimInterface.SWITCH_LEFT);
                                 purple.release();
                                 tsi.setSpeed(id, speed);
                             } else {
                                 orange.release();
+
                             }
                         }
 
@@ -218,11 +239,13 @@ public class Lab1 {
                             if (!direction) {
                                 tsi.setSpeed(id, 0);
                                 orange.acquire();
+
                                 tsi.setSwitch(4, 9, TSimInterface.SWITCH_RIGHT);
                                 tsi.setSpeed(id, speed);
                                 blue.release();
                             } else {
                                 orange.release();
+
                             }
                         }
 
@@ -231,22 +254,24 @@ public class Lab1 {
                             // to South
                             if (!direction) {
                                 tsi.setSpeed(id, 0);
-                                if (pink.tryAcquire(1, TimeUnit.SECONDS)) {
+                                if (pink.tryAcquire()) {
 
-                                    tsi.setSwitch(3, 11, TSimInterface.SWITCH_RIGHT);
+
+                                    tsi.setSwitch(3, 11, TSimInterface.SWITCH_LEFT);
                                     tsi.setSpeed(id, speed);
                                 } else {
                                     teal.acquire();
-                                    tsi.setSwitch(3, 11, TSimInterface.SWITCH_LEFT);
+
+                                    tsi.setSwitch(3, 11, TSimInterface.SWITCH_RIGHT);
                                     tsi.setSpeed(id, speed);
                                 }
                                 tsi.setSpeed(id, speed);
                             } else {
                                 tsi.setSpeed(id, 0);
-                                if (purple.tryAcquire(1, TimeUnit.SECONDS)) {
+                                if (purple.tryAcquire()) {
                                     tsi.setSwitch(4, 9, TSimInterface.SWITCH_LEFT);
                                     tsi.setSpeed(id, speed);
-                                } else if (blue.tryAcquire(1, TimeUnit.SECONDS)) {
+                                } else if (blue.tryAcquire()) {
 
                                     tsi.setSwitch(4, 9, TSimInterface.SWITCH_RIGHT);
                                     tsi.setSpeed(id, speed);
@@ -261,10 +286,12 @@ public class Lab1 {
                             // to South
                             if (!direction) {
                                 orange.release();
+
                                 // to North
                             } else {
                                 tsi.setSpeed(id, 0);
                                 orange.acquire();
+
                                 pink.release();
                                 tsi.setSwitch(3, 11, TSimInterface.SWITCH_LEFT);
                                 tsi.setSpeed(id, speed);
@@ -272,17 +299,19 @@ public class Lab1 {
                         }
 
                         // Teal west
-                        if (se.getXpos() == 3 && se.getYpos() == 13 && se.getStatus() == SensorEvent.ACTIVE) {
+                        if (se.getXpos() == 4 && se.getYpos() == 13 && se.getStatus() == SensorEvent.ACTIVE) {
                             // to South
                             if (!direction) {
                                 orange.release();
+
                                 // to North
                             } else {
-                                tsi.setSwitch(3, 11, TSimInterface.SWITCH_RIGHT);
 
                                 tsi.setSpeed(id, 0);
                                 orange.acquire();
+                                tsi.setSwitch(3, 11, TSimInterface.SWITCH_RIGHT);
                                 teal.release();
+
                                 tsi.setSpeed(id, speed);
                             }
                         }
@@ -290,6 +319,7 @@ public class Lab1 {
                         /// North Station
                         if (se.getXpos() == 13 && (se.getYpos() == 5 || se.getYpos() == 3) && direction && se.getStatus() == SensorEvent.ACTIVE) {
                             tsi.setSpeed(id, 0);
+                            sleep(2000);
                             speed = -speed;
                             tsi.setSpeed(id, speed);
                             direction = !direction;
@@ -299,6 +329,7 @@ public class Lab1 {
                         /// South Station
                         if (se.getXpos() == 13 && (se.getYpos() == 11 || se.getYpos() == 13) && !direction && se.getStatus() == SensorEvent.ACTIVE) {
                             tsi.setSpeed(id, 0);
+                            sleep(2000);
                             speed = -speed;
                             tsi.setSpeed(id, speed);
                             direction = !direction;
